@@ -2,7 +2,7 @@
 -- Idempotent: chạy được nhiều lần, và được app tự chạy khi khởi động.
 CREATE TABLE IF NOT EXISTS error_reports (
   id              uuid PRIMARY KEY,
-  source          text NOT NULL DEFAULT 'browser' CHECK (source IN ('browser', 'server', 'manual')),
+  source          text NOT NULL DEFAULT 'browser' CHECK (source IN ('browser', 'server', 'manual', 'user')),
   message         text NOT NULL,
   stack           text,
   route           text,
@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS error_reports (
   environment     jsonb NOT NULL DEFAULT '{}',
   release         text,
   user_id         integer,
+  reporter_name   text,
   fingerprint     text NOT NULL,
   occurrences     integer NOT NULL DEFAULT 1,
   last_seen_at    timestamptz NOT NULL DEFAULT now(),
@@ -29,6 +30,12 @@ CREATE TABLE IF NOT EXISTS error_reports (
   created_at      timestamptz NOT NULL DEFAULT now(),
   updated_at      timestamptz NOT NULL DEFAULT now()
 );
+
+-- Nâng cấp bảng đã tạo từ phiên bản trước (CREATE TABLE IF NOT EXISTS không đổi bảng cũ).
+ALTER TABLE error_reports ADD COLUMN IF NOT EXISTS reporter_name text;
+ALTER TABLE error_reports DROP CONSTRAINT IF EXISTS error_reports_source_check;
+ALTER TABLE error_reports ADD CONSTRAINT error_reports_source_check
+  CHECK (source IN ('browser', 'server', 'manual', 'user'));
 
 CREATE INDEX IF NOT EXISTS error_reports_fingerprint_idx ON error_reports (fingerprint, created_at DESC);
 CREATE INDEX IF NOT EXISTS error_reports_ticket_idx ON error_reports (ticket_id);

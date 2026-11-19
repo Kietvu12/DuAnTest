@@ -148,6 +148,7 @@ function ErrorDetail({ id, onChanged }) {
       <div className="space-y-4">
         <div className="card space-y-2 p-5 text-sm">
           <p className="flex justify-between gap-3"><span className="text-zinc-500">Nguồn</span><span className="font-medium">{ERROR_SOURCE[report.source]}</span></p>
+          {report.reporter_name && <p className="flex justify-between gap-3"><span className="text-zinc-500">Người báo</span><span className="truncate font-medium">{report.reporter_name}</span></p>}
           {report.route && <p className="flex justify-between gap-3"><span className="text-zinc-500">Màn hình</span><span className="truncate font-mono text-xs">{report.route}</span></p>}
           {report.page_url && <p className="flex justify-between gap-3"><span className="text-zinc-500">Trang</span><span className="truncate text-xs">{report.page_url}</span></p>}
           {report.release && <p className="flex justify-between gap-3"><span className="text-zinc-500">Phiên bản</span><span className="font-mono text-xs">{report.release}</span></p>}
@@ -285,7 +286,8 @@ export function AdminErrors() {
                       <td className="w-full max-w-0 px-6 py-4">
                         <p className="truncate font-medium" title={report.message}>{report.message.split('\n')[0]}</p>
                         <p className="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-zinc-500">
-                          <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-medium text-zinc-600">{ERROR_SOURCE[report.source]}</span>
+                          <span className={`rounded px-1.5 py-0.5 font-medium ${report.source === 'user' ? 'bg-volt-200 text-volt-600' : 'bg-zinc-100 text-zinc-600'}`}>{ERROR_SOURCE[report.source]}</span>
+                          {report.reporter_name && <span className="font-medium text-zinc-700">{report.reporter_name}</span>}
                           {report.route && <span className="font-mono">{report.route}</span>}
                           {report.occurrences > 1 && <span className="font-semibold text-zinc-700">×{report.occurrences}</span>}
                         </p>

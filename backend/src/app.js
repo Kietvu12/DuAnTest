@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import { query } from './db.js';
 import { reportServerError } from './errorReports.js';
+import { HttpError } from './http.js';
 import adminRouter from './routes/admin.js';
 import authRouter from './routes/auth.js';
 import catalogRouter from './routes/catalog.js';
@@ -35,8 +36,9 @@ export function createApp() {
     const status = error.status ?? (error.type === 'entity.parse.failed' ? 400 : 500);
     if (status >= 500) {
       console.error(error);
-      // Lỗi của chính backend cũng thành ticket (chạy nền, không ảnh hưởng response).
-      void reportServerError(error, req);
+      // Lỗi bất ngờ của backend cũng thành ticket (chạy nền, không ảnh hưởng response).
+      // HttpError là phản hồi do code chủ động trả về (vd. webhook chưa cấu hình → 503), không phải bug.
+      if (!(error instanceof HttpError)) void reportServerError(error, req);
     }
     res.status(status).json({ message: status >= 500 ? 'Máy chủ đang gặp sự cố, vui lòng thử lại' : error.message });
   });

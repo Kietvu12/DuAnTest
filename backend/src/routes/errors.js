@@ -76,8 +76,17 @@ reportRouter.post('/report-error', optionalAuth, rateLimit, async (req, res) => 
   const message = text(body.message, MAX_MESSAGE);
   if (!message) throw new HttpError(422, 'Thiếu nội dung lỗi');
 
+  // "user": người dùng bấm nút Báo lỗi và tự mô tả. Mặc định là lỗi do trình duyệt tự bắt.
+  const isUserReport = body.kind === 'user';
+  if (isUserReport && message.length < 10) throw new HttpError(422, 'Vui lòng mô tả lỗi rõ hơn (ít nhất 10 ký tự)');
+  // Đã đăng nhập thì lấy tên từ token, không tin tên do client gửi lên.
+  const reporterName = isUserReport
+    ? (req.user?.name ?? text(body.reporterName, 80)) || 'Khách (chưa đăng nhập)'
+    : undefined;
+
   const result = await recordError({
-    source: 'browser',
+    source: isUserReport ? 'user' : 'browser',
+    reporterName,
     message,
     stack: text(body.stack, MAX_STACK),
     route: text(body.route, 300),

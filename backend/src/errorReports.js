@@ -98,7 +98,7 @@ function cleanEnvironment(value) {
 export async function recordError(input) {
   const message = text(input.message, MAX_MESSAGE);
   if (!message) throw new HttpError(422, 'Thiếu nội dung lỗi');
-  const source = ['browser', 'server', 'manual'].includes(input.source) ? input.source : 'browser';
+  const source = ['browser', 'server', 'manual', 'user'].includes(input.source) ? input.source : 'browser';
   const stack = text(input.stack, MAX_STACK) || null;
   const route = text(input.route, 300) || null;
   const print = input.fingerprint ?? fingerprint({ source, route, message, stack });
@@ -117,20 +117,21 @@ export async function recordError(input) {
 
   const id = randomUUID();
   await query(
-    `INSERT INTO error_reports (id, source, message, stack, route, page_url, user_agent, environment, release, user_id, fingerprint)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+    `INSERT INTO error_reports (id, source, message, stack, route, page_url, user_agent, environment, release, user_id, fingerprint, reporter_name)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
     [
       id,
       source,
       message,
       stack,
       route,
-      source === 'browser' ? resolvePageUrl(input.pageUrl, route) : (input.pageUrl ?? null),
+      source === 'browser' || source === 'user' ? resolvePageUrl(input.pageUrl, route) : (input.pageUrl ?? null),
       text(input.userAgent, 400) || null,
       JSON.stringify(cleanEnvironment(input.environment)),
       tfConfig().release,
       Number.isInteger(input.userId) ? input.userId : null,
       print,
+      text(input.reporterName, 80) || null,
     ],
   );
   // Gửi nền: người dùng không phải chờ TicketForge.

@@ -51,6 +51,7 @@ export const ERROR_STATUS = {
 
 export const ERROR_SOURCE = {
   browser: 'Trình duyệt',
+  user: 'Khách báo',
   server: 'Backend',
   manual: 'Gửi thử',
 };

@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { Layout, RequireAuth, ScrollToTop } from './components/Layout';
+import { ReportErrorWidget } from './components/ReportErrorWidget';
 import { AdminDashboard, AdminInventory, AdminLayout, AdminOrders } from './pages/AdminPages';
 import { AdminErrors } from './pages/AdminErrorsPage';
 import CartPage from './pages/CartPage';
@@ -14,6 +15,7 @@ export default function App() {
   return (
     <>
       <ScrollToTop />
+      <ReportErrorWidget />
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<HomePage />} />

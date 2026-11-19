@@ -281,6 +281,56 @@ describe('tích hợp TicketForge', { skip }, () => {
     assert.equal(response.status, 200);
   });
 
+  test('người dùng tự báo lỗi: đăng nhập thì lấy tên từ token, khách tự nhập tên', async () => {
+    assert.equal((await post('/api/report-error', { kind: 'user', message: 'ngắn' })).status, 422);
+
+    const anonymous = await (
+      await post('/api/report-error', {
+        kind: 'user',
+        message: 'Nút thanh toán không bấm được trên điện thoại',
+        reporterName: '  Lan  ',
+        route: '/checkout',
+        pageUrl: 'https://shop.example.com/checkout?x=1',
+      })
+    ).json();
+    let saved = await row(anonymous.errorId);
+    assert.equal(saved.source, 'user');
+    assert.equal(saved.reporter_name, 'Lan');
+    assert.equal(saved.route, '/checkout');
+    assert.equal(saved.user_id, null);
+
+    const unnamed = await (await post('/api/report-error', { kind: 'user', message: 'Trang sản phẩm hiện sai giá khuyến mãi', route: '/products/x' })).json();
+    assert.equal((await row(unnamed.errorId)).reporter_name, 'Khách (chưa đăng nhập)');
+
+    const token = jwt.sign({ sub: 5, role: 'customer', name: 'Trần Văn Khách' }, 'test-secret');
+    const loggedIn = await (
+      await post(
+        '/api/report-error',
+        { kind: 'user', message: 'Giỏ hàng bị mất sản phẩm sau khi tải lại trang', reporterName: 'Tên giả mạo', route: '/cart' },
+        { Authorization: `Bearer ${token}` },
+      )
+    ).json();
+    saved = await waitFor(async () => {
+      const r = await row(loggedIn.errorId);
+      return r.ticket_id ? r : null;
+    });
+    assert.equal(saved.reporter_name, 'Trần Văn Khách'); // không tin tên client gửi lên
+    assert.equal(saved.user_id, 5);
+
+    const sent = mock.requests.find((r) => r.method === 'POST' && r.body?.metadata?.externalId === loggedIn.errorId);
+    assert.match(sent.body.prompt, /Người báo: Trần Văn Khách/);
+    assert.match(sent.body.prompt, /Người dùng tự báo lỗi/);
+    assert.equal(sent.body.metadata.reporterName, 'Trần Văn Khách');
+    assert.equal(sent.body.route, '/cart');
+
+    // lỗi do trình duyệt tự bắt không có tên người báo
+    const auto = await (await post('/api/report-error', browserError({ message: 'Lỗi tự bắt khác hẳn', stack: 'd\n at s (t.js:1:1)' }))).json();
+    assert.equal((await row(auto.errorId)).reporter_name, null);
+    await waitFor(async () => (await row(auto.errorId)).ticket_id);
+    await waitFor(async () => (await row(anonymous.errorId)).ticket_id);
+    await waitFor(async () => (await row(unnamed.errorId)).ticket_id);
+  });
+
   test('lỗi 5xx của backend cũng được ghi nhận', async () => {
     await errorReports.reportServerError(new Error('connection terminated'), { method: 'GET', path: '/api/products', user: undefined });
     const { rows } = await db.query(`SELECT * FROM error_reports WHERE source = 'server' ORDER BY created_at DESC LIMIT 1`);

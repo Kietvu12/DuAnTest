@@ -14,7 +14,7 @@ import { isConfigured, tfConfig } from '../ticketforge.js';
 // Được mount trong admin.js, đã qua requireAdmin.
 const router = Router();
 
-const LIST_COLUMNS = `id, source, message, route, page_url, release, occurrences, last_seen_at, created_at,
+const LIST_COLUMNS = `id, source, reporter_name, message, route, page_url, release, occurrences, last_seen_at, created_at,
   ticket_id, ticket_key, status, status_label, tf_updated_at, sync_state, sync_error, sync_attempts`;
 const FILTERS = ['not_started', 'in_progress', 'refused', 'done', 'unsent'];
 

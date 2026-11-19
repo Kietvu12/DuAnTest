@@ -92,7 +92,12 @@ async function call(path, { method = 'GET', headers = {}, body } = {}) {
   return data;
 }
 
-const SOURCE_LABELS = { browser: 'Trình duyệt của khách', server: 'Backend (lỗi 5xx)', manual: 'Gửi thử từ trang quản trị' };
+const SOURCE_LABELS = {
+  browser: 'Trình duyệt của khách (tự động bắt)',
+  user: 'Người dùng tự báo lỗi',
+  server: 'Backend (lỗi 5xx)',
+  manual: 'Gửi thử từ trang quản trị',
+};
 
 /** Dòng đầu là tiêu đề ticket (tối đa 140 ký tự), phần sau là ngữ cảnh để agent định vị lỗi. */
 export function buildPrompt(report) {
@@ -102,6 +107,7 @@ export function buildPrompt(report) {
   if (report.message.trim() !== title) lines.push(report.message.trim(), '');
   lines.push(`Hệ thống: VoltMart (cửa hàng đồ điện tử, React + Express + PostgreSQL)`);
   lines.push(`Nguồn: ${SOURCE_LABELS[report.source] ?? report.source}`);
+  if (report.reporter_name) lines.push(`Người báo: ${report.reporter_name}`);
   if (report.route) lines.push(`Màn hình / API: ${report.route}`);
   if (report.occurrences > 1) lines.push(`Đã xảy ra: ${report.occurrences} lần`);
   return lines.join('\n');
@@ -120,6 +126,7 @@ export async function createTicket(report) {
       externalId: report.id, // webhook trả lại đúng giá trị này để khớp với bản ghi lỗi
       source: report.source,
       userId: report.user_id ?? undefined,
+      reporterName: report.reporter_name ?? undefined,
     },
   };
   const ticket = await call('/v1/ingest/errors', {

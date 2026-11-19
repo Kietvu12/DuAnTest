@@ -1,4 +1,4 @@
-import { ApiError, tokenStore } from './api';
+import { ApiError, api, tokenStore } from './api';
 
 // Trình duyệt chỉ gửi lỗi về backend của VoltMart (/api/report-error). Backend mới gọi TicketForge:
 // API key không bao giờ xuống trình duyệt.
@@ -13,6 +13,13 @@ const SAME_ERROR_COOLDOWN_MS = 60_000;
 const lastSent = new Map();
 let sentCount = 0;
 
+// Vài lỗi JS vừa xảy ra trên trang: đính kèm khi người dùng tự bấm "Báo lỗi" để agent có stack trace.
+const recent = [];
+function remember(message, stack) {
+  recent.push({ at: new Date().toISOString(), message, stack: String(stack ?? '') });
+  if (recent.length > 3) recent.shift();
+}
+
 /**
  * Gửi một lỗi về server. Không bao giờ ném lỗi và không chặn giao diện.
  * Cùng một lỗi chỉ gửi 1 lần/phút và tối đa 5 lỗi mỗi lần tải trang, để vòng lặp lỗi không làm ngập hệ thống.
@@ -21,6 +28,7 @@ export function reportError(message, stack, { environment } = {}) {
   try {
     const text = String(message ?? '').slice(0, 1000);
     if (!text || IGNORED.some((pattern) => pattern.test(text))) return;
+    remember(text, stack);
 
     const key = `${text}|${String(stack ?? '').slice(0, 200)}`;
     const now = Date.now();
@@ -53,6 +61,34 @@ export function reportError(message, stack, { environment } = {}) {
   } catch {
     // báo lỗi không được phép gây thêm lỗi
   }
+}
+
+/**
+ * Người dùng tự báo lỗi qua nút "Báo lỗi". Khác reportError: không bị giới hạn tần suất phía client
+ * và trả lỗi cho giao diện để hiện thông báo. Trang được báo lấy theo trang đang mở.
+ * Đã đăng nhập thì server lấy tên từ token; chưa đăng nhập thì dùng `reporterName`.
+ */
+export function submitUserReport({ description, reporterName }) {
+  const attached = recent
+    .map(({ at, message, stack }) => `[${at}] ${message}${stack ? `\n${stack}` : ''}`)
+    .join('\n\n');
+  return api('/report-error', {
+    method: 'POST',
+    body: {
+      kind: 'user',
+      message: description.trim(),
+      reporterName: reporterName?.trim() || undefined,
+      stack: attached ? `Lỗi JavaScript gần đây trên trang này:\n${attached}`.slice(0, 15_000) : undefined,
+      route: window.location.pathname,
+      pageUrl: `${window.location.origin}${window.location.pathname}`,
+      userAgent: navigator.userAgent,
+      environment: {
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        language: navigator.language,
+        source: 'user-report-button',
+      },
+    },
+  });
 }
 
 function reasonToReport(reason) {
