@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+
+  --color-volt-200: #ecfccb;
+  --color-volt-300: #dcfa8a;
+  --color-volt-400: #c6f432;
+  --color-volt-500: #a6d61a;
+  --color-volt-600: #7ea30f;
+
+  --animate-fade-up: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-toast: toast-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-zinc-50 text-zinc-900 antialiased; font-feature-settings: "ss01"; }
+  ::selection { @apply bg-volt-300 text-zinc-950; }
+}
+
+@layer components {
+  .container-page { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+
+  .btn {
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold whitespace-nowrap transition duration-200 select-none;
+    @apply disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98];
+  }
+  .btn-primary { @apply bg-zinc-950 text-white hover:bg-zinc-800; }
+  .btn-volt { @apply bg-volt-400 text-zinc-950 hover:bg-volt-300; }
+  .btn-outline { @apply border border-zinc-300 bg-white text-zinc-900 hover:border-zinc-950; }
+  .btn-ghost { @apply text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950; }
+  .btn-sm { @apply h-9 px-4 text-xs; }
+  .btn-lg { @apply h-13 px-7 text-base; }
+
+  .input {
+    @apply h-11 w-full rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 outline-none transition;
+    @apply placeholder:text-zinc-400 focus:border-zinc-950 focus:ring-4 focus:ring-zinc-950/5;
+  }
+  .label { @apply mb-1.5 block text-sm font-medium text-zinc-700; }
+  .card { @apply rounded-3xl border border-zinc-200/80 bg-white; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold; }
+}
