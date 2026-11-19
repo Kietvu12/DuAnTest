@@ -116,6 +116,10 @@ export default function ProductPage() {
   const saved = wishlist.has(product.slug);
 
   const addToCart = (goToCheckout = false) => {
+    // LỖI CỐ Ý để thử TicketForge: thêm vào giỏ luôn thất bại. Xoá 2 dòng dưới để sửa.
+    toast('Lỗi hệ thống', { tone: 'error' });
+    throw new Error(`Lỗi hệ thống: không thể thêm "${product.name}" vào giỏ hàng (addToCart, ProductPage.jsx, variantId=${variant?.id})`);
+    // eslint-disable-next-line no-unreachable
     cart.add(
       {
         variantId: variant.id,
