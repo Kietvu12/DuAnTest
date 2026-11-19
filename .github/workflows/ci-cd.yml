@@ -1,0 +1,72 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: voltmart-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PORT: 4000
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/voltmart_ci
+      JWT_SECRET: ci-only-secret
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+      - name: Install backend
+        working-directory: backend
+        run: npm ci
+      - name: Check backend syntax
+        working-directory: backend
+        run: find src db -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Seed database
+        working-directory: backend
+        run: node db/setup.js
+      - name: Smoke test API
+        working-directory: backend
+        run: |
+          node src/index.js > api.log 2>&1 &
+          bash ../scripts/smoke-test.sh || { cat api.log; exit 1; }
+      - name: Build frontend
+        working-directory: frontend
+        run: npm ci && npm run build
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: [self-hosted, duantest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Build frontend
+        working-directory: frontend
+        run: npm ci && npm run build
+      - name: Publish to this server
+        run: bash scripts/deploy.sh
