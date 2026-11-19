@@ -48,6 +48,7 @@ function stockLevel() {
 async function seed(db) {
   const schema = await readFile(new URL('./schema.sql', import.meta.url), 'utf8');
   await db.query(schema);
+  await db.query(await readFile(new URL('./error-reports.sql', import.meta.url), 'utf8'));
 
   const categoryIds = new Map();
   for (const [index, category] of categories.entries()) {

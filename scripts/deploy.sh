@@ -23,6 +23,9 @@ cp "$ROOT/backend/package.json" "$ROOT/backend/package-lock.json" "$ROOT/backend
 rsync -a --delete "$ROOT/scripts/" "$APP/scripts/"
 rsync -a --delete "$ROOT/frontend/dist/" "$APP/frontend/dist/"
 
+# Mã commit đang chạy, gửi kèm mỗi báo lỗi sang TicketForge (trường "release").
+git -C "$ROOT" rev-parse --short HEAD > "$APP/backend/RELEASE" 2>/dev/null || true
+
 cd "$APP/backend"
 npm ci --omit=dev
 

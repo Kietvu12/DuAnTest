@@ -13,7 +13,13 @@ function usePersistentState(key, initial) {
   const [value, setValue] = useState(() => {
     try {
       const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : initial;
+      if (!raw) return initial;
+      const parsed = JSON.parse(raw);
+      // Dữ liệu hỏng (sửa tay, phiên bản cũ...) không được làm sập cả trang: bỏ đi và bắt đầu lại.
+      if (Array.isArray(initial)) {
+        return Array.isArray(parsed) ? parsed.filter((item) => item && typeof item === 'object') : initial;
+      }
+      return parsed;
     } catch {
       return initial;
     }

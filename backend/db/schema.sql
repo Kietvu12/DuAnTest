@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS order_items, orders, reviews, product_variants, products, brands, categories, coupons, users CASCADE;
+DROP TABLE IF EXISTS error_reports, order_items, orders, reviews, product_variants, products, brands, categories, coupons, users CASCADE;
 
 CREATE TABLE users (
   id            serial PRIMARY KEY,

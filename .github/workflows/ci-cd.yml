@@ -47,6 +47,11 @@ jobs:
       - name: Seed database
         working-directory: backend
         run: node db/setup.js
+      - name: Test TicketForge integration
+        working-directory: backend
+        env:
+          TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
+        run: npm test
       - name: Smoke test API
         working-directory: backend
         run: |

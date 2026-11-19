@@ -2,10 +2,12 @@ import { Router } from 'express';
 import { requireAdmin } from '../auth.js';
 import { query, withTransaction } from '../db.js';
 import { HttpError, text, toInt } from '../http.js';
+import adminErrorsRouter from './adminErrors.js';
 import { ORDER_WITH_ITEMS } from './orders.js';
 
 const router = Router();
 router.use(requireAdmin);
+router.use('/errors', adminErrorsRouter);
 
 const STATUSES = ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'];
 

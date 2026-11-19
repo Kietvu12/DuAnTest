@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react';
 import {
   Boxes,
+  Bug,
   ChevronDown,
   DollarSign,
   LayoutDashboard,
@@ -25,6 +26,7 @@ const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'Tổng quan' },
   { to: '/admin/orders', icon: ShoppingBag, label: 'Đơn hàng' },
   { to: '/admin/inventory', icon: Boxes, label: 'Kho hàng' },
+  { to: '/admin/errors', icon: Bug, label: 'Báo lỗi' },
 ];
 
 export function AdminLayout() {

@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import { Layout, RequireAuth, ScrollToTop } from './components/Layout';
 import { AdminDashboard, AdminInventory, AdminLayout, AdminOrders } from './pages/AdminPages';
+import { AdminErrors } from './pages/AdminErrorsPage';
 import CartPage from './pages/CartPage';
 import CatalogPage from './pages/CatalogPage';
 import CheckoutPage from './pages/CheckoutPage';
@@ -32,6 +33,7 @@ export default function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="inventory" element={<AdminInventory />} />
+          <Route path="errors" element={<AdminErrors />} />
         </Route>
       </Routes>
     </>

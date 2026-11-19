@@ -32,3 +32,23 @@ check "products" '"items"' "$BASE/api/products?limit=4"
 check "product detail" '"variants"' "$BASE/api/products/iphone-16-pro-max"
 check "login" '"token"' -X POST -H 'Content-Type: application/json' \
   -d '{"email":"khach@voltmart.vn","password":"Khach@123"}' "$BASE/api/auth/login"
+
+# Tích hợp TicketForge: các route phải tồn tại và từ chối request không hợp lệ.
+# Không gửi lỗi thật ở đây vì script này cũng chạy trên server thật mỗi lần deploy.
+check_status() {
+  local label="$1" expected="$2"
+  shift 2
+  local status
+  status="$(curl -s -o /dev/null -w '%{http_code}' "$@")"
+  if ! grep -qE "^($expected)$" <<<"$status"; then
+    echo "FAIL $label: HTTP $status, expected $expected" >&2
+    exit 1
+  fi
+  echo "ok   $label ($status)"
+}
+
+check_status "webhook rejects unsigned request" '400|401|503' -X POST \
+  -H 'Content-Type: application/json' -d '{"type":"ticket.test"}' "$BASE/api/ticketforge/webhook"
+check_status "report-error validates input" '422' -X POST \
+  -H 'Content-Type: application/json' -d '{"message":""}' "$BASE/api/report-error"
+check_status "admin errors require login" '401' "$BASE/api/admin/errors"

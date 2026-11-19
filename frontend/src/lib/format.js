@@ -41,6 +41,20 @@ export const ORDER_STATUS = {
 
 export const ORDER_FLOW = ['pending', 'confirmed', 'shipping', 'delivered'];
 
+// Bốn nhóm trạng thái ticket của TicketForge (màu theo gợi ý trong tài liệu tích hợp).
+export const ERROR_STATUS = {
+  not_started: { label: 'Chưa làm', className: 'bg-zinc-100 text-zinc-600 ring-zinc-200' },
+  in_progress: { label: 'Đang làm', className: 'bg-sky-50 text-sky-700 ring-sky-200' },
+  refused: { label: 'Từ chối làm', className: 'bg-rose-50 text-rose-700 ring-rose-200' },
+  done: { label: 'Hoàn thành', className: 'bg-emerald-50 text-emerald-700 ring-emerald-200' },
+};
+
+export const ERROR_SOURCE = {
+  browser: 'Trình duyệt',
+  server: 'Backend',
+  manual: 'Gửi thử',
+};
+
 export const PAYMENT_METHODS = {
   cod: 'Thanh toán khi nhận hàng',
   bank_transfer: 'Chuyển khoản ngân hàng',
