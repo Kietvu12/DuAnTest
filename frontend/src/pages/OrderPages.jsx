@@ -48,7 +48,7 @@ export function OrderSuccessPage() {
         </span>
         <h1 className="mt-8 text-3xl font-extrabold tracking-tight sm:text-4xl">Đặt hàng thành công!</h1>
         <p className="mt-3 text-zinc-500">
-          Cảm ơn bạn đã mua sắm tại VoltMart. Mã đơn hàng của bạn là{' '}
+          Cảm ơn bạn đã mua sắm tại VoltTech. Mã đơn hàng của bạn là{' '}
           <span className="font-mono font-bold text-zinc-950">{code}</span>
         </p>
       </div>
@@ -61,7 +61,7 @@ export function OrderSuccessPage() {
               <Landmark className="size-5 shrink-0" />
               <div>
                 <p className="font-semibold">Thông tin chuyển khoản</p>
-                <p className="mt-1">Ngân hàng Vietcombank · STK 0123 456 789 · CTCP VoltMart</p>
+                <p className="mt-1">Ngân hàng Vietcombank · STK 0123 456 789 · CTCP VoltTech</p>
                 <p>Số tiền: <b>{formatPrice(order.total)}</b> · Nội dung: <b className="font-mono">{order.code}</b></p>
               </div>
             </div>

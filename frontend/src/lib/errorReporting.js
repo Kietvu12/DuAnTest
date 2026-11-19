@@ -1,6 +1,6 @@
 import { ApiError, api, tokenStore } from './api';
 
-// Trình duyệt chỉ gửi lỗi về backend của VoltMart (/api/report-error). Backend mới gọi TicketForge:
+// Trình duyệt chỉ gửi lỗi về backend của VoltTech (/api/report-error). Backend mới gọi TicketForge:
 // API key không bao giờ xuống trình duyệt.
 const BASE_URL = import.meta.env.VITE_API_URL ?? '';
 

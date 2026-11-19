@@ -34,7 +34,7 @@ export function tfConfig() {
     publicUrl: (env.TICKETFORGE_PUBLIC_URL || 'https://ticketforge.vietdemo.com').replace(/\/+$/, ''),
     apiKey: env.TICKETFORGE_API_KEY?.trim() || '',
     webhookSecret: env.TICKETFORGE_WEBHOOK_SECRET?.trim() || '',
-    // Địa chỉ công khai của VoltMart. Domain này phải được thêm ở TicketForge → Cài đặt → API.
+    // Địa chỉ công khai của VoltTech. Domain này phải được thêm ở TicketForge → Cài đặt → API.
     siteUrl: (env.PUBLIC_URL || '').replace(/\/+$/, ''),
     release: env.APP_RELEASE?.trim() || RELEASE_FILE || PACKAGE_VERSION,
   };
@@ -105,7 +105,7 @@ export function buildPrompt(report) {
   const title = firstLine.length > 140 ? `${firstLine.slice(0, 137)}…` : firstLine;
   const lines = [title, ''];
   if (report.message.trim() !== title) lines.push(report.message.trim(), '');
-  lines.push(`Hệ thống: VoltMart (cửa hàng đồ điện tử, React + Express + PostgreSQL)`);
+  lines.push(`Hệ thống: VoltTech (cửa hàng đồ điện tử, React + Express + PostgreSQL)`);
   lines.push(`Nguồn: ${SOURCE_LABELS[report.source] ?? report.source}`);
   if (report.reporter_name) lines.push(`Người báo: ${report.reporter_name}`);
   if (report.route) lines.push(`Màn hình / API: ${report.route}`);

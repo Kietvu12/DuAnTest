@@ -69,7 +69,7 @@ router.post('/test', async (req, res) => {
   const stamp = new Date().toISOString();
   const { id } = await recordError({
     source: 'manual',
-    message: `[Thử nghiệm] Kiểm tra tích hợp TicketForge từ trang quản trị VoltMart (${stamp})`,
+    message: `[Thử nghiệm] Kiểm tra tích hợp TicketForge từ trang quản trị VoltTech (${stamp})`,
     route: '/admin/errors',
     pageUrl: tfConfig().siteUrl ? `${tfConfig().siteUrl}/admin/errors` : null,
     environment: { platform: 'server', note: 'Ticket thử nghiệm, không cần sửa code' },

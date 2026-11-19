@@ -1,5 +1,5 @@
 const BASE_URL = import.meta.env.VITE_API_URL ?? '';
-const TOKEN_KEY = 'voltmart.token';
+const TOKEN_KEY = 'volttech.token';
 
 export const tokenStore = {
   get: () => localStorage.getItem(TOKEN_KEY),

@@ -360,7 +360,7 @@ export default function ProductPage() {
                   </div>
                   <p className="mt-4 leading-relaxed text-zinc-600">{review.comment}</p>
                   <p className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600">
-                    <ShieldCheck className="size-3.5" /> Đã mua hàng tại VoltMart
+                    <ShieldCheck className="size-3.5" /> Đã mua hàng tại VoltTech
                   </p>
                 </article>
               ))}

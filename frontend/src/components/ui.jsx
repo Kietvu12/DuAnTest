@@ -4,7 +4,7 @@ import { ORDER_STATUS, discountPercent, formatPrice } from '../lib/format';
 
 export function Logo({ dark = false }) {
   return (
-    <Link to="/" className="group flex shrink-0 items-center gap-2" aria-label="VoltMart - Trang chủ">
+    <Link to="/" className="group flex shrink-0 items-center gap-2" aria-label="VoltTech - Trang chủ">
       <span className="grid size-9 place-items-center rounded-xl bg-volt-400 text-zinc-950 shadow-[0_6px_20px_-6px] shadow-volt-500 transition group-hover:rotate-[-8deg]">
         <Zap className="size-5" fill="currentColor" strokeWidth={1.5} />
       </span>

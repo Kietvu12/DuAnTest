@@ -197,7 +197,7 @@ export default function HomePage() {
         <SectionHeader
           eyebrow="Nổi bật"
           title="Sản phẩm được yêu thích"
-          description="Những thiết bị được khách hàng VoltMart chọn mua và đánh giá cao nhất."
+          description="Những thiết bị được khách hàng VoltTech chọn mua và đánh giá cao nhất."
           action={
             <Link to="/products?sort=popular" className="btn btn-ghost">
               Xem tất cả <ArrowRight className="size-4" />

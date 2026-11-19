@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { submitUserReport } from '../lib/errorReporting';
 import { useAuth } from '../lib/store';
 
-const NAME_KEY = 'voltmart.reporter';
+const NAME_KEY = 'volttech.reporter';
 const MIN_LENGTH = 10;
 const MAX_LENGTH = 2000;
 

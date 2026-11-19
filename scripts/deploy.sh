@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copy a built checkout onto the live VoltMart app and reload the API.
+# Copy a built checkout onto the live VoltTech app and reload the API.
 # Does not touch backend/.env, nginx or the database (db:setup wipes data, run it by hand).
 set -euo pipefail
 

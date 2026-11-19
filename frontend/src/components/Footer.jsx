@@ -22,7 +22,7 @@ const COLUMNS = [
     ],
   },
   {
-    title: 'VoltMart',
+    title: 'VoltTech',
     links: [
       ['Về chúng tôi', '/'],
       ['Hệ thống cửa hàng', '/'],
@@ -43,7 +43,7 @@ export function Footer() {
           </p>
           <ul className="mt-6 space-y-2.5 text-sm">
             <li className="flex items-center gap-2.5"><Phone className="size-4 text-volt-400" /> 1900 6868</li>
-            <li className="flex items-center gap-2.5"><Mail className="size-4 text-volt-400" /> hotro@voltmart.vn</li>
+            <li className="flex items-center gap-2.5"><Mail className="size-4 text-volt-400" /> hotro@volttech.vn</li>
             <li className="flex items-center gap-2.5"><MapPin className="size-4 text-volt-400" /> 26 Lý Tự Trọng, Quận 1, TP.HCM</li>
           </ul>
         </div>
@@ -62,7 +62,7 @@ export function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="container-page flex flex-wrap items-center justify-between gap-3 py-6 text-xs">
-          <p>© {new Date().getFullYear()} VoltMart. Dự án demo thương mại điện tử.</p>
+          <p>© {new Date().getFullYear()} VoltTech. Dự án demo thương mại điện tử.</p>
           <p>Thanh toán: COD · Chuyển khoản · Visa / Mastercard</p>
         </div>
       </div>

@@ -31,7 +31,7 @@ check "categories" '"slug"' "$BASE/api/categories"
 check "products" '"items"' "$BASE/api/products?limit=4"
 check "product detail" '"variants"' "$BASE/api/products/iphone-16-pro-max"
 check "login" '"token"' -X POST -H 'Content-Type: application/json' \
-  -d '{"email":"khach@voltmart.vn","password":"Khach@123"}' "$BASE/api/auth/login"
+  -d '{"email":"khach@volttech.vn","password":"Khach@123"}' "$BASE/api/auth/login"
 
 # Tích hợp TicketForge: các route phải tồn tại và từ chối request không hợp lệ.
 # Không gửi lỗi thật ở đây vì script này cũng chạy trên server thật mỗi lần deploy.

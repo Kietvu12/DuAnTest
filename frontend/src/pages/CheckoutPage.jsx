@@ -213,7 +213,7 @@ export default function CheckoutPage() {
               <LockKeyhole className="size-4" /> {submitting ? 'Đang đặt hàng…' : 'Đặt hàng'}
             </button>
             <p className="mt-3 text-center text-xs text-zinc-500">
-              Bằng việc đặt hàng, bạn đồng ý với điều khoản sử dụng của VoltMart.
+              Bằng việc đặt hàng, bạn đồng ý với điều khoản sử dụng của VoltTech.
             </p>
           </div>
         </aside>

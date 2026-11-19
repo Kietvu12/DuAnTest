@@ -50,7 +50,7 @@ function AuthShell({ title, subtitle, children, footer }) {
               ))}
             </ul>
           </div>
-          <p className="text-xs text-zinc-500">© VoltMart</p>
+          <p className="text-xs text-zinc-500">© VoltTech</p>
         </div>
         <div className="p-8 sm:p-12">
           <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h1>
@@ -117,10 +117,10 @@ export function LoginPage() {
       <div className="mt-6 rounded-2xl bg-zinc-50 p-4 text-xs text-zinc-600">
         <p className="mb-2 font-semibold text-zinc-900">Tài khoản demo</p>
         <div className="flex flex-wrap gap-2">
-          <button type="button" className="btn btn-outline btn-sm" onClick={() => setForm({ email: 'khach@voltmart.vn', password: 'Khach@123' })}>
+          <button type="button" className="btn btn-outline btn-sm" onClick={() => setForm({ email: 'khach@volttech.vn', password: 'Khach@123' })}>
             Khách hàng
           </button>
-          <button type="button" className="btn btn-outline btn-sm" onClick={() => setForm({ email: 'admin@voltmart.vn', password: 'Admin@123' })}>
+          <button type="button" className="btn btn-outline btn-sm" onClick={() => setForm({ email: 'admin@volttech.vn', password: 'Admin@123' })}>
             Quản trị viên
           </button>
         </div>
@@ -137,7 +137,7 @@ export function RegisterPage() {
   return (
     <AuthShell
       title="Tạo tài khoản"
-      subtitle="Chỉ mất 30 giây để bắt đầu mua sắm cùng VoltMart."
+      subtitle="Chỉ mất 30 giây để bắt đầu mua sắm cùng VoltTech."
       footer={<>Đã có tài khoản? <Link to={`/login?redirect=${encodeURIComponent(redirect)}`} className="font-semibold text-zinc-950 underline underline-offset-4">Đăng nhập</Link></>}
     >
       <form onSubmit={submit} className="space-y-5">

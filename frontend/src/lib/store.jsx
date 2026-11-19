@@ -59,7 +59,7 @@ function AuthProvider({ children }) {
 }
 
 function CartProvider({ children }) {
-  const [items, setItems] = usePersistentState('voltmart.cart', []);
+  const [items, setItems] = usePersistentState('volttech.cart', []);
 
   const add = useCallback(
     (line, quantity = 1) =>
@@ -100,7 +100,7 @@ function CartProvider({ children }) {
 }
 
 function WishlistProvider({ children }) {
-  const [items, setItems] = usePersistentState('voltmart.wishlist', []);
+  const [items, setItems] = usePersistentState('volttech.wishlist', []);
 
   const has = useCallback((slug) => items.some((item) => item.slug === slug), [items]);
   const toggle = useCallback(

@@ -70,8 +70,8 @@ async function seed(db) {
     rows: [, customer],
   } = await db.query(
     `INSERT INTO users (email, password_hash, full_name, phone, role) VALUES
-       ('admin@voltmart.vn', $1, 'Quản trị VoltMart', '0901000001', 'admin'),
-       ('khach@voltmart.vn', $2, 'Nguyễn Văn Khách', '0912345678', 'customer')
+       ('admin@volttech.vn', $1, 'Quản trị VoltTech', '0901000001', 'admin'),
+       ('khach@volttech.vn', $2, 'Nguyễn Văn Khách', '0912345678', 'customer')
      RETURNING id`,
     [adminHash, customerHash],
   );
@@ -177,7 +177,7 @@ async function seed(db) {
         ownedByCustomer ? customer.id : null,
         name,
         ownedByCustomer ? '0912345678' : `09${between(10000000, 99999999)}`,
-        ownedByCustomer ? 'khach@voltmart.vn' : null,
+        ownedByCustomer ? 'khach@volttech.vn' : null,
         `${between(1, 300)} Nguyễn Huệ, Phường Bến Nghé`,
         pick(cities),
         pick(payments),

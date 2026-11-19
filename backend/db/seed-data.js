@@ -428,7 +428,7 @@ export const reviewComments = [
   [5, 'Dùng được 2 tuần, máy chạy mượt, pin trâu. Nhân viên tư vấn nhiệt tình.'],
   [5, 'Thiết kế đẹp, cầm rất chắc tay. Đáng đồng tiền bát gạo.'],
   [4, 'Sản phẩm tốt, đúng mô tả. Chỉ tiếc là giao hơi chậm một ngày.'],
-  [5, 'Mua lần thứ hai ở VoltMart, vẫn uy tín như lần đầu. Sẽ ủng hộ tiếp.'],
+  [5, 'Mua lần thứ hai ở VoltTech, vẫn uy tín như lần đầu. Sẽ ủng hộ tiếp.'],
   [4, 'Chất lượng ổn trong tầm giá, màn hình hiển thị đẹp.'],
   [5, 'Được tặng kèm phụ kiện, bảo hành điện tử tiện lợi. 10 điểm!'],
   [3, 'Sản phẩm dùng ổn nhưng hộp hơi móp nhẹ khi nhận.'],
