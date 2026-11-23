@@ -28,7 +28,7 @@ npm run build
 
 echo "==> publish web"
 mkdir -p "$WEB"
-rsync -a --delete "$APP/frontend/dist/" "$WEB/"
+rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$APP/frontend/dist/" "$WEB/"
 chmod -R a+rX "$WEB"
 
 echo "==> restart API"

@@ -23,12 +23,12 @@ if [[ ! -d "$ROOT/frontend/dist" ]]; then
 fi
 
 mkdir -p "$APP/backend" "$APP/frontend/dist" "$APP/scripts" "$WEB"
-rsync -a --delete "$ROOT/backend/src/" "$APP/backend/src/"
-rsync -a --delete "$ROOT/backend/db/" "$APP/backend/db/"
+rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/backend/src/" "$APP/backend/src/"
+rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/backend/db/" "$APP/backend/db/"
 cp "$ROOT/backend/package.json" "$ROOT/backend/package-lock.json" "$ROOT/backend/.env.example" "$APP/backend/"
-rsync -a --delete "$ROOT/scripts/" "$APP/scripts/"
-rsync -a --delete "$ROOT/frontend/dist/" "$APP/frontend/dist/"
-rsync -a --delete "$ROOT/frontend/dist/" "$WEB/"
+rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/scripts/" "$APP/scripts/"
+rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/frontend/dist/" "$APP/frontend/dist/"
+rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/frontend/dist/" "$WEB/"
 chmod -R a+rX "$WEB"
 
 git -C "$ROOT" rev-parse --short HEAD > "$APP/backend/RELEASE" 2>/dev/null || true
