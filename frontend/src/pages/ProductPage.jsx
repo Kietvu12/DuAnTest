@@ -116,12 +116,11 @@ export default function ProductPage() {
   const saved = wishlist.has(product.slug);
 
   const addToCart = (goToCheckout = false) => {
-    if (!variant || variant.stock === 0) {
+    // BUG-4 (FE): điều kiện hết hàng bị đảo (≥0 thay vì ===0) → luôn báo hết hàng, không thêm giỏ được.
+    if (!variant || variant.stock >= 0) {
       toast('Phiên bản này đã hết hàng, vui lòng chọn phiên bản khác.', { tone: 'error' });
       return;
     }
-    // BUG-4 (FE): bấm thêm giỏ → ném lỗi runtime "Lỗi hệ thống", không thêm được sản phẩm.
-    throw new Error('Lỗi hệ thống');
     cart.add(
       {
         variantId: variant.id,

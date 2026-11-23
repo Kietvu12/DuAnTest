@@ -52,11 +52,9 @@ function parseCustomer(customer = {}) {
 }
 
 router.post('/coupons/validate', async (req, res) => {
-  // BUG-5 (API): mọi mã giảm giá đều bị từ chối dù mã hợp lệ.
-  throw new HttpError(400, 'Mã giảm giá không hợp lệ hoặc đã hết hạn');
-
   const subtotal = Math.max(0, toInt(req.body?.subtotal) ?? 0);
-  const coupon = await resolveCoupon({ query }, req.body?.code, subtotal);
+  // BUG-5 (API): luôn kiểm tra min_order với subtotal = 0 → mã hợp lệ vẫn bị từ chối.
+  const coupon = await resolveCoupon({ query }, req.body?.code, 0);
   if (!coupon) throw new HttpError(400, 'Vui lòng nhập mã giảm giá');
   const shippingFee = shippingFor(subtotal);
   res.json({
@@ -69,9 +67,6 @@ router.post('/coupons/validate', async (req, res) => {
 });
 
 router.post('/orders', optionalAuth, async (req, res) => {
-  // BUG-2 (API): tạo đơn luôn 500 — checkout không hoàn tất được.
-  throw new HttpError(500, 'Lỗi hệ thống khi tạo đơn hàng. Vui lòng thử lại sau.');
-
   const lines = parseLines(req.body?.items);
   const customer = parseCustomer(req.body?.customer);
   const paymentMethod = req.body?.paymentMethod ?? 'cod';
@@ -86,7 +81,8 @@ router.post('/orders', optionalAuth, async (req, res) => {
        JOIN categories c ON c.id = p.category_id
        WHERE v.id = ANY($1)
        FOR UPDATE OF v`,
-      [[...lines.keys()]],
+      // BUG-2 (API): truyền số lượng thay vì variant id → không khớp dòng giỏ, checkout fail.
+      [[...lines.values()]],
     );
     if (variants.length !== lines.size) throw new HttpError(400, 'Một số sản phẩm không còn được bán');
 
