@@ -73,13 +73,21 @@ function useAuthForm(path, initial) {
   const redirect = params.get('redirect') || '/';
   const target = (user) => (user.role === 'admin' && redirect === '/' ? '/admin' : redirect);
 
-  const field = (name) => ({ value: form[name], onChange: (event) => setForm((prev) => ({ ...prev, [name]: event.target.value })) });
+  const field = (name) => ({
+    value: form[name],
+    onChange: (event) => {
+      const { value } = event.target;
+      setForm((prev) => ({ ...prev, [name]: value }));
+      // Người dùng sửa lại email/mật khẩu thì bỏ thông báo lỗi cũ, tránh tưởng là nhập đúng vẫn báo sai.
+      setError('');
+    },
+  });
   const submit = async (event) => {
     event.preventDefault();
     setBusy(true);
     setError('');
     try {
-      const user = await signIn(path, form);
+      const user = await signIn(path, { ...form, email: form.email.trim() });
       navigate(target(user), { replace: true });
     } catch (err) {
       setError(err.message);
