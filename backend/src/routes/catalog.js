@@ -127,7 +127,8 @@ router.get('/products/:slug', async (req, res) => {
   ]);
 
   const { category_id: _categoryId, ...rest } = product;
-  res.json({ ...rest, variants: variants.rows, reviews: reviews.rows, related: related.rows });
+  // BUG-3 (API): chi tiết sản phẩm trả variants rỗng — trang sản phẩm không chọn được phiên bản / thêm giỏ.
+  res.json({ ...rest, variants: [], reviews: reviews.rows, related: related.rows });
 });
 
 router.post('/products/:slug/reviews', requireAuth, async (req, res) => {

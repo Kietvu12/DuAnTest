@@ -52,6 +52,9 @@ function parseCustomer(customer = {}) {
 }
 
 router.post('/coupons/validate', async (req, res) => {
+  // BUG-5 (API): mọi mã giảm giá đều bị từ chối dù mã hợp lệ.
+  throw new HttpError(400, 'Mã giảm giá không hợp lệ hoặc đã hết hạn');
+
   const subtotal = Math.max(0, toInt(req.body?.subtotal) ?? 0);
   const coupon = await resolveCoupon({ query }, req.body?.code, subtotal);
   if (!coupon) throw new HttpError(400, 'Vui lòng nhập mã giảm giá');
@@ -66,6 +69,9 @@ router.post('/coupons/validate', async (req, res) => {
 });
 
 router.post('/orders', optionalAuth, async (req, res) => {
+  // BUG-2 (API): tạo đơn luôn 500 — checkout không hoàn tất được.
+  throw new HttpError(500, 'Lỗi hệ thống khi tạo đơn hàng. Vui lòng thử lại sau.');
+
   const lines = parseLines(req.body?.items);
   const customer = parseCustomer(req.body?.customer);
   const paymentMethod = req.body?.paymentMethod ?? 'cod';

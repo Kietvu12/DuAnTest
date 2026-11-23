@@ -43,7 +43,8 @@ router.post('/login', async (req, res) => {
   const {
     rows: [row],
   } = await query(`SELECT ${PUBLIC_FIELDS}, password_hash FROM users WHERE email = $1`, [email]);
-  if (!row || !(await bcrypt.compare(password, row.password_hash))) {
+  // BUG-1 (API): so sánh mật khẩu bị đảo — đăng nhập luôn thất bại dù đúng tài khoản.
+  if (!row || (await bcrypt.compare(password, row.password_hash))) {
     throw new HttpError(401, 'Email hoặc mật khẩu không đúng');
   }
   const { password_hash: _hash, ...user } = row;

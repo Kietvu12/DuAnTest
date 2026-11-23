@@ -120,6 +120,8 @@ export default function ProductPage() {
       toast('Phiên bản này đã hết hàng, vui lòng chọn phiên bản khác.', { tone: 'error' });
       return;
     }
+    // BUG-4 (FE): bấm thêm giỏ → ném lỗi runtime "Lỗi hệ thống", không thêm được sản phẩm.
+    throw new Error('Lỗi hệ thống');
     cart.add(
       {
         variantId: variant.id,
