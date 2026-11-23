@@ -1,19 +1,21 @@
-# DUANSH-3 — Mật khẩu đã nhập đúng nhưng vẫn báo sai
+# DUANSH-4 — Còn hàng nhưng bấm thêm vào thì báo lỗi không còn
 
 ## Tóm tắt
-Agent đã đánh giá ticket bằng `deepseek-flash` và ghi nhận trên nhánh `ticketforge/DUANSH-3-mat-khau-a-nhap-ung-nhung-van-bao-sai`.
+Agent đã đánh giá ticket bằng `deepseek-flash` và ghi nhận trên nhánh `ticketforge/DUANSH-4-con-hang-nhung-bam-them-vao-thi-bao-loi-`.
 
 ## Mức độ và phạm vi
-- Mức độ: P1 (độ tin cậy 0.62)
-- Lý do: Lỗi chặn luồng đăng nhập: người dùng nhập đúng mật khẩu nhưng hệ thống vẫn trả về 'sai mật khẩu'. Đăng nhập là luồng bắt buộc để dùng toàn bộ hệ thống VoltTech, nên nếu nguyên nhân nằm ở phía server (so sánh hash, trim/chuẩn hoá mật khẩu, truy vấn user trong PostgreSQL) thì mọi người dùng đều có thể bị ảnh hưởng. Chưa có bằng chứng lỗi lan rộng hay mất dữ liệu nên để p1 thay vì p0. Không có ảnh đính kèm nên không có tín hiệu UI/OCR bổ sung.
+- Mức độ: P1 (độ tin cậy 0.84)
+- Lý do: The product detail page indicates the item is in stock, but adding it to the cart fails with an out-of-stock error. This breaks a core purchase action for the reported product and likely indicates a stock-status or add-to-cart validation mismatch.
 - Trong phạm vi: có
-- Lỗi được mô tả trực tiếp tại màn hình/route /login và liên quan tới xử lý xác thực đăng nhập, đúng phạm vi ticket. Chỉ cần sửa logic kiểm tra mật khẩu/phản hồi lỗi trong luồng /login, không mở rộng sang module khác và không cần đổi schema.
+- The ticket directly references the product route and the add-to-cart behavior on that page, so the investigation should focus on the product page/API and cart stock validation related to this route.
 
 ## Nguyên nhân
-Prompt tiếng Việt: 'Mật khẩu đã nhập đúng nhưng vẫn báo sai'; Route bị ảnh hưởng: /login; Màn hình/API: /login; Nguồn: người dùng tự báo lỗi (Tuấn Vũ Kiệt); Stack: React + Express + PostgreSQL; Không có ảnh đính kèm để OCR/vision
+Route: /products/ipad-air-m3; Prompt reports stock shown as available; Add-to-cart action returns 'không còn' / out-of-stock error; User-reported purchase-flow failure; No image attached
 
 ## Thay đổi
-- `backend/src/routes/auth.js`
+- `frontend/src/pages/ProductPage.jsx`
+- `backend/src/routes/orders.js`
+
 
 ## Rủi ro
 Bản vá cần lập trình viên đọc diff trước khi merge vào nhánh sản phẩm.
