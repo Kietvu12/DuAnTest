@@ -15,6 +15,6 @@ jobs:
           code=$(curl -sS -o /tmp/r.json -w '%{http_code}' -X POST \
             -H "X-Deploy-Token: ${TOKEN}" \
             --max-time 1200 \
-            https://shophouse.vietdemo.com/__deploy/shophouse)
+            http://shophouse.vietdemo.com/__deploy/shophouse)
           cat /tmp/r.json; echo
           test "$code" = "200"
