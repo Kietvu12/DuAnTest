@@ -53,8 +53,7 @@ function parseCustomer(customer = {}) {
 
 router.post('/coupons/validate', async (req, res) => {
   const subtotal = Math.max(0, toInt(req.body?.subtotal) ?? 0);
-  // BUG-5 (API): luôn kiểm tra min_order với subtotal = 0 → mã hợp lệ vẫn bị từ chối.
-  const coupon = await resolveCoupon({ query }, req.body?.code, 0);
+  const coupon = await resolveCoupon({ query }, req.body?.code, subtotal);
   if (!coupon) throw new HttpError(400, 'Vui lòng nhập mã giảm giá');
   const shippingFee = shippingFor(subtotal);
   res.json({
@@ -88,8 +87,8 @@ router.post('/orders', optionalAuth, async (req, res) => {
     let subtotal = 0;
     for (const variant of variants) {
       const quantity = lines.get(variant.id);
-      // BUG-2 (API): so sánh tồn kho bị đảo (>= thay vì <) → luôn báo hết hàng khi còn hàng.
-      if (variant.stock >= quantity) {
+      // DUANSH-4: trước đây điều kiện bị đảo (`stock >= quantity`) nên đơn còn hàng vẫn bị báo hết hàng.
+      if (variant.stock < quantity) {
         throw new HttpError(
           409,
           variant.stock === 0

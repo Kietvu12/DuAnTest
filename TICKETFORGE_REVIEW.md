@@ -1,19 +1,20 @@
-# VOLTMA-4 — Bấm "Thêm vào giỏ" ở trang iPhone 16 Pro Max thì hiện thông báo "Lỗi hệ thống", sản phẩm không được thêm vào giỏ hàng.
+# DUANSH-4 — Còn hàng nhưng bấm thêm vào thì báo lỗi không còn
 
 ## Tóm tắt
-Agent đã đánh giá ticket bằng `deepseek-flash` và ghi nhận trên nhánh `ticketforge/VOLTMA-4-bam-them-vao-gio-o-trang-iphone-16-pro-m`.
+Agent đã đánh giá ticket bằng `deepseek-flash` và ghi nhận trên nhánh `ticketforge/DUANSH-4-con-hang-nhung-bam-them-vao-thi-bao-loi-`.
 
 ## Mức độ và phạm vi
-- Mức độ: P1 (độ tin cậy 0.88)
-- Lý do: Lỗi chặn thao tác thêm sản phẩm vào giỏ hàng trên trang iPhone 16 Pro Max, kèm thông báo 'Lỗi hệ thống' và sản phẩm không được thêm vào giỏ. Đây là bước quan trọng trong luồng mua hàng và không thấy workaround rõ ràng trên cùng trang.
+- Mức độ: P1 (độ tin cậy 0.84)
+- Lý do: The product detail page indicates the item is in stock, but adding it to the cart fails with an out-of-stock error. This breaks a core purchase action for the reported product and likely indicates a stock-status or add-to-cart validation mismatch.
 - Trong phạm vi: có
-- Lỗi trực tiếp liên quan tới route /products/iphone-16-pro-max và hành vi addToCart của sản phẩm trong ticket; phạm vi sửa nên giới hạn ở ProductPage/addToCart và phần giỏ hàng liên quan trực tiếp nếu cần.
+- The ticket directly references the product route and the add-to-cart behavior on that page, so the investigation should focus on the product page/API and cart stock validation related to this route.
 
 ## Nguyên nhân
-Prompt: bấm 'Thêm vào giỏ' tại trang iPhone 16 Pro Max hiện 'Lỗi hệ thống'; Sản phẩm không được thêm vào giỏ hàng; Route /products/iphone-16-pro-max khớp với sản phẩm được báo; Stack trace: addToCart tại ProductPage.jsx, variantId=1; Không có ảnh đính kèm trong ticket
+Route: /products/ipad-air-m3; Prompt reports stock shown as available; Add-to-cart action returns 'không còn' / out-of-stock error; User-reported purchase-flow failure; No image attached
 
 ## Thay đổi
 - `frontend/src/pages/ProductPage.jsx`
+- `backend/src/routes/orders.js`
 
 ## Rủi ro
 Bản vá cần lập trình viên đọc diff trước khi merge vào nhánh sản phẩm.
