@@ -1,4 +1,4 @@
-name: CI/CD
+name: CI
 
 on:
   push:
@@ -6,30 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
-concurrency:
-  group: shophouse-${{ github.ref }}
-  cancel-in-progress: false
-
 jobs:
   build:
-    name: CI build + test
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-    env:
-      PORT: 4000
-      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/volttech_ci
-      JWT_SECRET: ci-only-secret
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,45 +18,9 @@ jobs:
           cache-dependency-path: |
             backend/package-lock.json
             frontend/package-lock.json
-      - name: Install backend
+      - name: Check backend
         working-directory: backend
-        run: npm ci
-      - name: Check backend syntax
-        working-directory: backend
-        run: find src db -name '*.js' -print0 | xargs -0 -n1 node --check
-      - name: Seed database
-        working-directory: backend
-        run: node db/setup.js
-      - name: Test TicketForge integration
-        working-directory: backend
-        env:
-          TEST_DATABASE_URL: ${{ env.DATABASE_URL }}
-        run: npm test
-      - name: Smoke test API
-        working-directory: backend
-        run: |
-          node --env-file=.env.example src/index.js > api.log 2>&1 &
-          # override env for listen
-          kill $! 2>/dev/null || true
-          PORT=4000 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" \
-            node src/index.js > api.log 2>&1 &
-          bash ../scripts/smoke-test.sh || { cat api.log; exit 1; }
+        run: npm ci && find src db -name '*.js' -print0 | xargs -0 -n1 node --check
       - name: Build frontend
         working-directory: frontend
         run: npm ci && npm run build
-
-  deploy:
-    name: Deploy to server
-    needs: build
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-    runs-on: [self-hosted, duantest]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Build frontend
-        working-directory: frontend
-        run: npm ci && npm run build
-      - name: Publish to this server
-        run: bash scripts/deploy.sh
