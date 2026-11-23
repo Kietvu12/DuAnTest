@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD
 
 on:
   push:
@@ -6,8 +6,13 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: shophouse-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: CI build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,3 +29,20 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm ci && npm run build
+
+  deploy:
+    name: Deploy server
+    needs: build
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH pull + build + restart
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          command_timeout: 20m
+          script: |
+            bash /home/api/shophouse/scripts/pull-and-deploy.sh

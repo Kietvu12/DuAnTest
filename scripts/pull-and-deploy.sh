@@ -22,6 +22,15 @@ chmod -R a+rX "$WEB"
 cd "$APP/backend"
 pm2 restart shophouse-api --update-env || pm2 start src/index.js --name shophouse-api --node-args='--env-file=.env' --cwd "$APP/backend"
 pm2 save
-curl -fsS http://127.0.0.1:4000/api/health
-echo
-echo "OK ShopHouse $(git -C "$APP" rev-parse --short HEAD)"
+
+for i in $(seq 1 30); do
+  if curl -fsS -m 2 http://127.0.0.1:4000/api/health >/dev/null 2>&1; then
+    curl -fsS http://127.0.0.1:4000/api/health
+    echo
+    echo "OK ShopHouse $(git -C "$APP" rev-parse --short HEAD)"
+    exit 0
+  fi
+  sleep 1
+done
+echo "API health check failed" >&2
+exit 1
