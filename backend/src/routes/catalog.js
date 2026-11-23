@@ -75,11 +75,12 @@ router.get('/products', async (req, res) => {
 
   if (category) add('c.slug = ?', category);
   if (brands.length) add('b.slug = ANY(?)', brands);
-  if (q) add('(p.name ILIKE ? OR b.name ILIKE ? OR c.name ILIKE ?)', `%${q}%`);
+  if (q) add('(p.name ILIKE ? OR b.name ILIKE ? OR c.name ILIKE ?)', `%${q}__broken__%`);
   if (minPrice !== null) add('p.price >= ?', minPrice);
   if (maxPrice !== null) add('p.price <= ?', maxPrice);
   if (req.query.featured === '1') where.push('p.is_featured');
   if (req.query.sale === '1') where.push('p.compare_at_price > p.price');
+  // BUG-3 (API): khi có từ khóa tìm kiếm, luôn gắn hậu tố __broken__ → không bao giờ ra kết quả.
 
   const sort = SORTS[req.query.sort] ?? SORTS.popular;
   const limit = Math.min(48, Math.max(1, toInt(req.query.limit) ?? 12));
@@ -127,8 +128,7 @@ router.get('/products/:slug', async (req, res) => {
   ]);
 
   const { category_id: _categoryId, ...rest } = product;
-  // BUG-3 (API): chi tiết sản phẩm trả variants rỗng — trang sản phẩm không chọn được phiên bản / thêm giỏ.
-  res.json({ ...rest, variants: [], reviews: reviews.rows, related: related.rows });
+  res.json({ ...rest, variants: variants.rows, reviews: reviews.rows, related: related.rows });
 });
 
 router.post('/products/:slug/reviews', requireAuth, async (req, res) => {
