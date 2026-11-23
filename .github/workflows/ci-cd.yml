@@ -7,11 +7,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: volttech-${{ github.ref }}
+  group: shophouse-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build:
+    name: CI build + test
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -30,10 +31,10 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/volttech_ci
       JWT_SECRET: ci-only-secret
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
           cache: npm
           cache-dependency-path: |
             backend/package-lock.json
@@ -55,21 +56,26 @@ jobs:
       - name: Smoke test API
         working-directory: backend
         run: |
-          node src/index.js > api.log 2>&1 &
+          node --env-file=.env.example src/index.js > api.log 2>&1 &
+          # override env for listen
+          kill $! 2>/dev/null || true
+          PORT=4000 DATABASE_URL="$DATABASE_URL" JWT_SECRET="$JWT_SECRET" \
+            node src/index.js > api.log 2>&1 &
           bash ../scripts/smoke-test.sh || { cat api.log; exit 1; }
       - name: Build frontend
         working-directory: frontend
         run: npm ci && npm run build
 
   deploy:
+    name: Deploy to server
     needs: build
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: [self-hosted, duantest]
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
       - name: Build frontend
         working-directory: frontend
         run: npm ci && npm run build
