@@ -16,6 +16,7 @@ Route: /products/ipad-air-m3; Prompt reports stock shown as available; Add-to-ca
 - `frontend/src/pages/ProductPage.jsx`
 - `backend/src/routes/orders.js`
 
+
 ## Rủi ro
 Bản vá cần lập trình viên đọc diff trước khi merge vào nhánh sản phẩm.
 
