@@ -79,7 +79,10 @@ function useAuthForm(path, initial) {
     setBusy(true);
     setError('');
     try {
-      const user = await signIn(path, form);
+      // Trình quản lý mật khẩu hay dán email kèm khoảng trắng ở hai đầu → server không tìm thấy tài khoản.
+      // Chỉ chuẩn hoá email; mật khẩu giữ nguyên đúng như người dùng nhập.
+      const payload = { ...form, email: typeof form.email === 'string' ? form.email.trim() : form.email };
+      const user = await signIn(path, payload);
       navigate(target(user), { replace: true });
     } catch (err) {
       setError(err.message);
