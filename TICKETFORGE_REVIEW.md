@@ -1,19 +1,19 @@
-# VOLTMA-4 — Bấm "Thêm vào giỏ" ở trang iPhone 16 Pro Max thì hiện thông báo "Lỗi hệ thống", sản phẩm không được thêm vào giỏ hàng.
+# DUANSH-3 — Mật khẩu đã nhập đúng nhưng vẫn báo sai
 
 ## Tóm tắt
-Agent đã đánh giá ticket bằng `deepseek-flash` và ghi nhận trên nhánh `ticketforge/VOLTMA-4-bam-them-vao-gio-o-trang-iphone-16-pro-m`.
+Agent đã đánh giá ticket bằng `deepseek-flash` và ghi nhận trên nhánh `ticketforge/DUANSH-3-mat-khau-a-nhap-ung-nhung-van-bao-sai`.
 
 ## Mức độ và phạm vi
-- Mức độ: P1 (độ tin cậy 0.88)
-- Lý do: Lỗi chặn thao tác thêm sản phẩm vào giỏ hàng trên trang iPhone 16 Pro Max, kèm thông báo 'Lỗi hệ thống' và sản phẩm không được thêm vào giỏ. Đây là bước quan trọng trong luồng mua hàng và không thấy workaround rõ ràng trên cùng trang.
+- Mức độ: P1 (độ tin cậy 0.62)
+- Lý do: Lỗi chặn luồng đăng nhập: người dùng nhập đúng mật khẩu nhưng hệ thống vẫn trả về 'sai mật khẩu'. Đăng nhập là luồng bắt buộc để dùng toàn bộ hệ thống VoltTech, nên nếu nguyên nhân nằm ở phía server (so sánh hash, trim/chuẩn hoá mật khẩu, truy vấn user trong PostgreSQL) thì mọi người dùng đều có thể bị ảnh hưởng. Chưa có bằng chứng lỗi lan rộng hay mất dữ liệu nên để p1 thay vì p0. Không có ảnh đính kèm nên không có tín hiệu UI/OCR bổ sung.
 - Trong phạm vi: có
-- Lỗi trực tiếp liên quan tới route /products/iphone-16-pro-max và hành vi addToCart của sản phẩm trong ticket; phạm vi sửa nên giới hạn ở ProductPage/addToCart và phần giỏ hàng liên quan trực tiếp nếu cần.
+- Lỗi được mô tả trực tiếp tại màn hình/route /login và liên quan tới xử lý xác thực đăng nhập, đúng phạm vi ticket. Chỉ cần sửa logic kiểm tra mật khẩu/phản hồi lỗi trong luồng /login, không mở rộng sang module khác và không cần đổi schema.
 
 ## Nguyên nhân
-Prompt: bấm 'Thêm vào giỏ' tại trang iPhone 16 Pro Max hiện 'Lỗi hệ thống'; Sản phẩm không được thêm vào giỏ hàng; Route /products/iphone-16-pro-max khớp với sản phẩm được báo; Stack trace: addToCart tại ProductPage.jsx, variantId=1; Không có ảnh đính kèm trong ticket
+Prompt tiếng Việt: 'Mật khẩu đã nhập đúng nhưng vẫn báo sai'; Route bị ảnh hưởng: /login; Màn hình/API: /login; Nguồn: người dùng tự báo lỗi (Tuấn Vũ Kiệt); Stack: React + Express + PostgreSQL; Không có ảnh đính kèm để OCR/vision
 
 ## Thay đổi
-- `frontend/src/pages/ProductPage.jsx`
+- `backend/src/routes/auth.js`
 
 ## Rủi ro
 Bản vá cần lập trình viên đọc diff trước khi merge vào nhánh sản phẩm.
