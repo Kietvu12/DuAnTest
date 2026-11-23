@@ -8,8 +8,6 @@ const router = Router();
 
 const PUBLIC_FIELDS = 'id, email, full_name, phone, role, created_at';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// Hash giả dùng khi email không tồn tại: vẫn chạy bcrypt để thời gian phản hồi không tiết lộ email nào đã đăng ký.
-const DUMMY_HASH = bcrypt.hashSync('volttech-dummy-password', 10);
 
 function session(user) {
   return { token: signToken(user), user };
@@ -41,17 +39,12 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   const email = text(req.body?.email, 160).toLowerCase();
-  const password = typeof req.body?.password === 'string' ? req.body.password : '';
-  if (!email || !password) throw new HttpError(400, 'Vui lòng nhập email và mật khẩu');
-
+  const password = String(req.body?.password ?? '');
   const {
     rows: [row],
   } = await query(`SELECT ${PUBLIC_FIELDS}, password_hash FROM users WHERE email = $1`, [email]);
-  // FIX (DUANSH-1): phải so sánh với password_hash đã băm, không phải email (trước đây bcrypt.compare(password, row.email)
-  // luôn trả về false nên đăng nhập đúng mật khẩu vẫn bị báo sai).
-  const storedHash = row?.password_hash || DUMMY_HASH;
-  const passwordMatches = await bcrypt.compare(password, storedHash);
-  if (!row || !passwordMatches) {
+  // BUG-1 (API): so sánh mật khẩu với email thay vì password_hash → đăng nhập luôn fail.
+  if (!row || !(await bcrypt.compare(password, row.email))) {
     throw new HttpError(401, 'Email hoặc mật khẩu không đúng');
   }
   const { password_hash: _hash, ...user } = row;
