@@ -81,15 +81,15 @@ router.post('/orders', optionalAuth, async (req, res) => {
        JOIN categories c ON c.id = p.category_id
        WHERE v.id = ANY($1)
        FOR UPDATE OF v`,
-      // BUG-2 (API): truyền số lượng thay vì variant id → không khớp dòng giỏ, checkout fail.
-      [[...lines.values()]],
+      [[...lines.keys()]],
     );
     if (variants.length !== lines.size) throw new HttpError(400, 'Một số sản phẩm không còn được bán');
 
     let subtotal = 0;
     for (const variant of variants) {
       const quantity = lines.get(variant.id);
-      if (variant.stock < quantity) {
+      // BUG-2 (API): so sánh tồn kho bị đảo (>= thay vì <) → luôn báo hết hàng khi còn hàng.
+      if (variant.stock >= quantity) {
         throw new HttpError(
           409,
           variant.stock === 0
