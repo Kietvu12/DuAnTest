@@ -36,13 +36,16 @@ jobs:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
-      - name: SSH pull + build + restart
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script_stop: true
-          command_timeout: 20m
-          script: |
-            bash /home/api/shophouse/scripts/pull-and-deploy.sh
+      - name: Trigger pull + build + restart
+        env:
+          TOKEN: ${{ secrets.DEPLOY_WEBHOOK_SECRET }}
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /tmp/deploy-resp.json -w '%{http_code}' -X POST \
+            -H "X-Deploy-Token: ${TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d '{"ref":"${{ github.sha }}","repo":"${{ github.repository }}"}' \
+            https://shophouse.vietdemo.com/__deploy/shophouse)
+          cat /tmp/deploy-resp.json
+          echo
+          test "$code" = "202"
