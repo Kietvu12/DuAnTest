@@ -1,18 +1,13 @@
 #!/usr/bin/env bash
-# Publish built checkout → live ShopHouse (VoltTech) app + nginx web root.
+# In-place deploy for ShopHouse (VoltTech). Prefer scripts/pull-and-deploy.sh from CI.
 # Does not touch backend/.env, nginx, or database.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-APP="/home/api/shophouse"
-WEB="/home/frontend/shophouse"
+APP="/home/DuAnTest"
 PM2="${PM2:-$(command -v pm2 || echo /usr/local/bin/pm2)}"
 if [[ $(id -u) -ne 0 ]]; then PM2="sudo -n $PM2"; fi
 
-if [[ "$ROOT" == "$APP" ]]; then
-  echo "Refusing to deploy from the live app directory. Use scripts/pull-and-deploy.sh instead." >&2
-  exit 1
-fi
 if [[ ! -f "$APP/backend/.env" ]]; then
   echo "$APP/backend/.env is missing." >&2
   exit 1
@@ -22,15 +17,15 @@ if [[ ! -d "$ROOT/frontend/dist" ]]; then
   exit 1
 fi
 
-mkdir -p "$APP/backend" "$APP/frontend/dist" "$APP/scripts" "$WEB"
-rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/backend/src/" "$APP/backend/src/"
-rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/backend/db/" "$APP/backend/db/"
-cp "$ROOT/backend/package.json" "$ROOT/backend/package-lock.json" "$ROOT/backend/.env.example" "$APP/backend/"
-rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/scripts/" "$APP/scripts/"
-rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/frontend/dist/" "$APP/frontend/dist/"
-rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/frontend/dist/" "$WEB/"
-chmod -R a+rX "$WEB"
+if [[ "$ROOT" != "$APP" ]]; then
+  rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/backend/src/" "$APP/backend/src/"
+  rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/backend/db/" "$APP/backend/db/"
+  cp "$ROOT/backend/package.json" "$ROOT/backend/package-lock.json" "$ROOT/backend/.env.example" "$APP/backend/"
+  rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/scripts/" "$APP/scripts/"
+  rsync -rltD --delete --chmod=Du+rwx,Dgo+rx,Fu+rw,Fgo+r "$ROOT/frontend/dist/" "$APP/frontend/dist/"
+fi
 
+chmod -R a+rX "$APP/frontend/dist"
 git -C "$ROOT" rev-parse --short HEAD > "$APP/backend/RELEASE" 2>/dev/null || true
 
 cd "$APP/backend"
