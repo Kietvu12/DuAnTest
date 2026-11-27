@@ -58,8 +58,7 @@ export function ProductCard({ product }) {
           <Rating value={product.rating} size="size-3" />
           <span className="font-medium text-zinc-700">{product.rating.toFixed(1)}</span>
           <span className="text-zinc-300">•</span>
-          {/* SIM-10 (UI): nhân sold_count * 10 → số "Đã bán" trên thẻ / và /products phóng đại. */}
-          <span>Đã bán {formatCompact((product.sold_count ?? 0) * 10)}</span>
+          <span>Đã bán {formatCompact(product.sold_count)}</span>
         </div>
         <div className="mt-auto flex items-end justify-between gap-2 pt-3">
           <Price value={product.price} compare={product.compare_at_price} size="sm" />

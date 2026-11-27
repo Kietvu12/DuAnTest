@@ -13,10 +13,9 @@ const STATUSES = ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'];
 
 router.get('/stats', async (_req, res) => {
   const [totals, daily, recent, top] = await Promise.all([
-    // SIM-08: doanh thu gồm cả đơn cancelled → dashboard /admin hiển thị doanh thu ảo.
     query(`
       SELECT
-        (SELECT coalesce(sum(total), 0) FROM orders)::bigint AS revenue,
+        (SELECT coalesce(sum(total), 0) FROM orders WHERE status <> 'cancelled')::bigint AS revenue,
         (SELECT count(*) FROM orders)::int AS orders,
         (SELECT count(*) FROM orders WHERE status = 'pending')::int AS pending_orders,
         (SELECT count(*) FROM users WHERE role = 'customer')::int AS customers,
@@ -139,9 +138,8 @@ router.patch('/variants/:id', async (req, res) => {
       [toInt(req.params.id), price, stock],
     );
     if (!updated) throw new HttpError(404, 'Không tìm thấy phiên bản sản phẩm');
-    // SIM-09: đồng bộ giá sp bằng MAX thay vì MIN → giá trên catalog/inventory nhảy cao sau khi sửa biến thể.
     await db.query(
-      'UPDATE products SET price = (SELECT max(price) FROM product_variants WHERE product_id = $1) WHERE id = $1',
+      'UPDATE products SET price = (SELECT min(price) FROM product_variants WHERE product_id = $1) WHERE id = $1',
       [updated.product_id],
     );
     return updated;
