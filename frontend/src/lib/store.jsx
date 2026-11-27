@@ -64,15 +64,26 @@ function CartProvider({ children }) {
   const add = useCallback(
     (line, quantity = 1) =>
       setItems((prev) => {
-        const max = Math.min(line.stock ?? MAX_PER_LINE, MAX_PER_LINE);
-        // BUG-CART: so sánh variantId với productSlug (hai giá trị khác kiểu/nghĩa) → không bao giờ thấy dòng cũ, rồi return prev nên không thêm được vào giỏ.
-        const existing = prev.find((item) => item.variantId === line.productSlug);
+        // SHOPHO-2: trước đây so sánh variantId với productSlug (hai giá trị khác nghĩa) nên không bao giờ
+        // thấy dòng cũ, và nhánh "chưa có trong giỏ" lại return prev → bấm "Thêm vào giỏ" không thêm gì cả.
+        if (!line || line.variantId === null || line.variantId === undefined) return prev;
+
+        const stock = Number(line.stock);
+        const max = Math.min(Number.isFinite(stock) && stock > 0 ? stock : MAX_PER_LINE, MAX_PER_LINE);
+        if (max <= 0) return prev; // phiên bản đã hết hàng thì không thêm
+
+        const requested = Math.trunc(Number(quantity));
+        const amount = Math.min(Math.max(Number.isFinite(requested) ? requested : 1, 1), max);
+        const existing = prev.find((item) => item.variantId === line.variantId);
+
         if (existing) {
           return prev.map((item) =>
-            item.variantId === line.variantId ? { ...item, ...line, quantity: Math.min(item.quantity + quantity, max) } : item,
+            item.variantId === line.variantId
+              ? { ...item, ...line, quantity: Math.min(item.quantity + amount, max) }
+              : item,
           );
         }
-        return prev;
+        return [...prev, { ...line, quantity: amount }];
       }),
     [setItems],
   );

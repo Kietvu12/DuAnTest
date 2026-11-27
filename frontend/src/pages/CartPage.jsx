@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { ArrowRight, ShieldCheck, ShoppingBag, Trash2, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TotalsTable } from '../components/OrderSummary';
@@ -7,9 +8,22 @@ import { FREE_SHIPPING_THRESHOLD, formatPrice, shippingFor } from '../lib/format
 import { useCart } from '../lib/store';
 
 export default function CartPage() {
-  const { items, subtotal, count, update, remove } = useCart();
+  const { items, update, remove } = useCart();
 
-  if (items.length === 0) {
+  // SHOPHO-2: giỏ hàng lưu ở máy khách có thể còn dòng do phiên bản cũ ghi sai (thiếu variantId/giá).
+  // Chỉ hiển thị và tính tiền trên các dòng hợp lệ để trang giỏ hàng không bị trống/trắng dù đã thêm sản phẩm.
+  const lines = useMemo(
+    () =>
+      items.filter(
+        (item) => item && item.variantId !== null && item.variantId !== undefined && Number.isFinite(Number(item.price)),
+      ),
+    [items],
+  );
+
+  const count = lines.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal = lines.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+
+  if (lines.length === 0) {
     return (
       <div className="container-page animate-fade-up pt-16">
         <EmptyState
@@ -50,7 +64,7 @@ export default function CartPage() {
           </div>
 
           <ul className="card divide-y divide-zinc-100">
-            {items.map((item) => (
+            {lines.map((item) => (
               <li key={item.variantId} className="flex gap-4 p-5 sm:gap-6">
                 <Link to={`/products/${item.productSlug}`} className="shrink-0">
                   <ProductVisual icon={item.icon} hex={item.colorHex} className="size-24 sm:size-28" rounded="rounded-2xl" />
@@ -76,8 +90,8 @@ export default function CartPage() {
                   <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-4">
                     <QuantityInput size="sm" value={item.quantity} max={Math.min(item.stock ?? 20, 20)} onChange={(q) => update(item.variantId, q)} />
                     <div className="text-right">
-                      <p className="font-bold">{formatPrice(item.price * item.quantity)}</p>
-                      {item.quantity > 1 && <p className="text-xs text-zinc-500">{formatPrice(item.price)} / sản phẩm</p>}
+                      <p className="font-bold">{formatPrice(Number(item.price) * item.quantity)}</p>
+                      {item.quantity > 1 && <p className="text-xs text-zinc-500">{formatPrice(Number(item.price))} / sản phẩm</p>}
                     </div>
                   </div>
                 </div>
