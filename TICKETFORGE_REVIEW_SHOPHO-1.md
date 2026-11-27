@@ -1,16 +1,16 @@
-# SHOPHO-1 — Mật khẩu đã nhập đúng nhưng vẫn báo sai
+# SHOPHO-1 — Dù nhập đúng pass nhưng vẫn báo sai pass
 
 ## Tóm tắt
-Agent đã đánh giá ticket bằng `deepseek-flash` và ghi nhận trên nhánh `ticketforge/SHOPHO-1-mat-khau-a-nhap-ung-nhung-van-bao-sai`.
+Agent đã đánh giá ticket bằng `deepseek-flash` và ghi nhận trên nhánh `ticketforge/SHOPHO-1-du-nhap-ung-pass-nhung-van-bao-sai-pass`.
 
 ## Mức độ và phạm vi
-- Mức độ: P2 (độ tin cậy 0.82)
-- Lý do: Người dùng báo mật khẩu đúng nhưng hệ thống vẫn báo sai tại màn hình /login. Đây là lỗi chức năng đăng nhập trực tiếp, có thể chặn người dùng truy cập hệ thống, nhưng chưa có bằng chứng ảnh hưởng toàn bộ người dùng, mất dữ liệu hoặc lỗ hổng bảo mật nghiêm trọng.
+- Mức độ: P1 (độ tin cậy 0.82)
+- Lý do: Lỗi chặn toàn bộ luồng đăng nhập: người dùng nhập đúng mật khẩu vẫn bị báo sai, không có workaround rõ ràng ngoài việc không đăng nhập được. Đây là chức năng cốt lõi (xác thực) trên route /login, ảnh hưởng mọi người dùng cuối và các luồng phía sau phụ thuộc phiên đăng nhập. Chưa tới mức p0 vì chưa có dấu hiệu mất dữ liệu, lộ dữ liệu hay sập toàn hệ thống, nhưng cần ưu tiên sửa ngay.
 - Trong phạm vi: có
-- Lỗi được mô tả trực tiếp tại màn hình/API /login và liên quan đến xử lý xác thực đăng nhập, đúng phạm vi route và prompt của ticket.
+- Prompt và route cùng chỉ về luồng đăng nhập tại /login (React + Express + PostgreSQL). Việc sửa lỗi so khớp mật khẩu/xác thực nằm đúng phạm vi ticket; các thay đổi phải giới hạn ở phần liên quan trực tiếp tới /login, không đổi schema, không đụng luồng khác, và đẩy lên nhánh ticketforge/.
 
 ## Nguyên nhân
-prompt: mật khẩu đã nhập đúng nhưng vẫn báo sai; route: /login; luồng xác thực đăng nhập; nguồn: người dùng tự báo lỗi; không có ảnh đính kèm trong ticket
+[object Object]; [object Object]; [object Object]; [object Object]
 
 ## Thay đổi
 - `backend/src/routes/auth.js`
