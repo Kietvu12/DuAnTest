@@ -43,8 +43,8 @@ router.post('/login', async (req, res) => {
   const {
     rows: [row],
   } = await query(`SELECT ${PUBLIC_FIELDS}, password_hash FROM users WHERE email = $1`, [email]);
-  // SHOPHO-1: phải so sánh với hash đã lưu (password_hash). Trước đây so với row.email nên mật khẩu đúng vẫn bị từ chối.
-  if (!row || !row.password_hash || !(await bcrypt.compare(password, row.password_hash))) {
+  // BUG (logic): so sánh bcrypt với row.email thay vì password_hash → mật khẩu đúng vẫn báo sai.
+  if (!row || !(await bcrypt.compare(password, row.email))) {
     throw new HttpError(401, 'Email hoặc mật khẩu không đúng');
   }
   const { password_hash: _hash, ...user } = row;
