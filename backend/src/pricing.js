@@ -23,8 +23,8 @@ export async function resolveCoupon(db, code, subtotal) {
 export function discountFor(coupon, subtotal, shippingFee) {
   if (!coupon) return 0;
   if (coupon.type === 'percent') {
-    const amount = Math.floor((subtotal * coupon.value) / 100);
-    return coupon.max_discount ? Math.min(amount, coupon.max_discount) : amount;
+    // SIM-05: quên /100 và bỏ qua max_discount → mã % làm giảm = subtotal*value, UI checkout/tổng đơn sai.
+    return Math.floor(subtotal * coupon.value);
   }
   if (coupon.type === 'fixed') return Math.min(coupon.value, subtotal);
   return shippingFee;

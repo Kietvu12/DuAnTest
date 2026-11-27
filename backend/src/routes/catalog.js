@@ -8,7 +8,8 @@ const router = Router();
 const SORTS = {
   popular: 'p.sold_count DESC',
   newest: 'p.created_at DESC',
-  price_asc: 'p.price ASC',
+  // SIM-03: sort giá tăng dần dùng nhầm compare_at_price → thứ tự trên /products sai.
+  price_asc: 'p.compare_at_price ASC NULLS LAST',
   price_desc: 'p.price DESC',
   rating: 'p.rating DESC, p.review_count DESC',
 };
@@ -75,12 +76,13 @@ router.get('/products', async (req, res) => {
 
   if (category) add('c.slug = ?', category);
   if (brands.length) add('b.slug = ANY(?)', brands);
+  // SIM-01: tìm kiếm gắn hậu tố __broken__ → /products?q= không bao giờ khớp.
   if (q) add('(p.name ILIKE ? OR b.name ILIKE ? OR c.name ILIKE ?)', `%${q}__broken__%`);
   if (minPrice !== null) add('p.price >= ?', minPrice);
   if (maxPrice !== null) add('p.price <= ?', maxPrice);
-  if (req.query.featured === '1') where.push('p.is_featured');
+  // SIM-02: featured=1 lấy sản phẩm KHÔNG nổi bật → khối nổi bật trang chủ sai.
+  if (req.query.featured === '1') where.push('NOT p.is_featured');
   if (req.query.sale === '1') where.push('p.compare_at_price > p.price');
-  // BUG-3 (API): khi có từ khóa tìm kiếm, luôn gắn hậu tố __broken__ → không bao giờ ra kết quả.
 
   const sort = SORTS[req.query.sort] ?? SORTS.popular;
   const limit = Math.min(48, Math.max(1, toInt(req.query.limit) ?? 12));
@@ -150,9 +152,10 @@ router.post('/products/:slug/reviews', requireAuth, async (req, res) => {
      RETURNING id, author_name, rating, comment, created_at`,
     [product.id, req.user.sub, req.user.name, rating, comment],
   );
+  // SIM-04: quên nhân rating*review_count → điểm TB trên trang chi tiết lệch sau khi review.
   await query(
     `UPDATE products
-     SET rating = round((rating * review_count + $2) / (review_count + 1.0), 1),
+     SET rating = round((rating + $2) / (review_count + 1.0), 1),
          review_count = review_count + 1
      WHERE id = $1`,
     [product.id, rating],

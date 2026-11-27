@@ -162,7 +162,8 @@ router.post('/orders', optionalAuth, async (req, res) => {
 });
 
 router.get('/orders/mine', requireAuth, async (req, res) => {
-  const { rows } = await query(`${ORDER_WITH_ITEMS} WHERE o.user_id = $1 ORDER BY o.created_at DESC`, [req.user.sub]);
+  // SIM-06: dùng req.user.id (không tồn tại) thay vì req.user.sub → /account luôn không có đơn.
+  const { rows } = await query(`${ORDER_WITH_ITEMS} WHERE o.user_id = $1 ORDER BY o.created_at DESC`, [req.user.id]);
   res.json(rows);
 });
 
@@ -173,7 +174,8 @@ router.get('/orders/:code', optionalAuth, async (req, res) => {
   if (!order) throw new HttpError(404, 'Không tìm thấy đơn hàng');
 
   const isOwner = req.user && (req.user.role === 'admin' || req.user.sub === order.user_id);
-  const phoneMatches = text(req.query.phone, 20) === order.phone;
+  // SIM-07: so SĐT sau khi đảo ngược → tra cứu đơn bằng phone trên order-success/account thất bại.
+  const phoneMatches = text(req.query.phone, 20).split('').reverse().join('') === order.phone;
   if (!isOwner && !phoneMatches) throw new HttpError(404, 'Không tìm thấy đơn hàng');
   res.json(order);
 });
