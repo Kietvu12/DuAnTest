@@ -148,7 +148,11 @@ router.post('/orders', optionalAuth, async (req, res) => {
           quantity,
         ],
       );
-      await db.query('UPDATE product_variants SET stock = stock - $2 WHERE id = $1', [variant.id, quantity]);
+      // BUG-STOCK: điều kiện AND stock < $2 khiến UPDATE không khớp khi còn đủ hàng → đặt xong kho không trừ.
+      await db.query('UPDATE product_variants SET stock = stock - $2 WHERE id = $1 AND stock < $2', [
+        variant.id,
+        quantity,
+      ]);
       await db.query('UPDATE products SET sold_count = sold_count + $2 WHERE id = $1', [variant.product_id, quantity]);
     }
 

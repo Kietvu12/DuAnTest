@@ -85,7 +85,8 @@ router.patch('/orders/:id', async (req, res) => {
         [id],
       );
     }
-    await db.query('UPDATE orders SET status = $2, updated_at = now() WHERE id = $1', [id, status]);
+    // BUG-ADMIN-STATUS: WHERE status = $2 chỉ update khi đã đúng trạng thái đích → đổi status không bao giờ ghi được.
+    await db.query('UPDATE orders SET status = $2, updated_at = now() WHERE id = $1 AND status = $2', [id, status]);
     const {
       rows: [full],
     } = await db.query(`${ORDER_WITH_ITEMS} WHERE o.id = $1`, [id]);

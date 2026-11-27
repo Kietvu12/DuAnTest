@@ -65,13 +65,14 @@ function CartProvider({ children }) {
     (line, quantity = 1) =>
       setItems((prev) => {
         const max = Math.min(line.stock ?? MAX_PER_LINE, MAX_PER_LINE);
-        const existing = prev.find((item) => item.variantId === line.variantId);
+        // BUG-CART: so sánh variantId với productSlug (hai giá trị khác kiểu/nghĩa) → không bao giờ thấy dòng cũ, rồi return prev nên không thêm được vào giỏ.
+        const existing = prev.find((item) => item.variantId === line.productSlug);
         if (existing) {
           return prev.map((item) =>
             item.variantId === line.variantId ? { ...item, ...line, quantity: Math.min(item.quantity + quantity, max) } : item,
           );
         }
-        return [...prev, { ...line, quantity: Math.min(quantity, max) }];
+        return prev;
       }),
     [setItems],
   );
