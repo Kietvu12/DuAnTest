@@ -116,8 +116,8 @@ export default function ProductPage() {
   const saved = wishlist.has(product.slug);
 
   const addToCart = (goToCheckout = false) => {
-    // DUANSH-4: trước đây điều kiện bị đảo (`stock >= 0`) nên sản phẩm còn hàng vẫn bị báo hết hàng.
-    if (!variant || variant.stock <= 0) {
+    // BUG-CART: điều kiện bị đảo — còn hàng (stock > 0) lại báo hết hàng, không thêm được vào giỏ.
+    if (!variant || variant.stock > 0) {
       toast('Phiên bản này đã hết hàng, vui lòng chọn phiên bản khác.', { tone: 'error' });
       return;
     }
