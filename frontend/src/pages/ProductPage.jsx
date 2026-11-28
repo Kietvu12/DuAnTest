@@ -116,8 +116,8 @@ export default function ProductPage() {
   const saved = wishlist.has(product.slug);
 
   const addToCart = (goToCheckout = false) => {
-    // BUG-CART: điều kiện bị đảo — còn hàng (stock > 0) lại báo hết hàng, không thêm được vào giỏ.
-    if (!variant || variant.stock > 0) {
+    // SHOPHO-2: điều kiện bị đảo — còn hàng (stock > 0) lại báo hết hàng, không thêm được vào giỏ.
+    if (!variant || variant.stock <= 0) {
       toast('Phiên bản này đã hết hàng, vui lòng chọn phiên bản khác.', { tone: 'error' });
       return;
     }
@@ -318,79 +318,67 @@ export default function ProductPage() {
 
             <div className="mt-10">
               <h2 className="text-lg font-bold">Thông số kỹ thuật</h2>
-              <dl className="mt-4 overflow-hidden rounded-3xl ring-1 ring-zinc-200/80">
-                {Object.entries(product.specs).map(([label, value], index) => (
-                  <div
-                    key={label}
-                    className={`grid grid-cols-[130px_1fr] gap-4 px-5 py-3.5 text-sm sm:grid-cols-[200px_1fr] ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-zinc-50/70'
-                    }`}
-                  >
+              <dl className="mt-4 overflow-hidden rounded-2xl border border-zinc-200/80 bg-white">
+                {Object.entries(product.specs ?? {}).map(([label, value]) => (
+                  <div key={label} className="grid grid-cols-[minmax(0,140px)_1fr] gap-4 border-b border-zinc-100 px-4 py-3 text-sm last:border-0 sm:grid-cols-[minmax(0,200px)_1fr]">
                     <dt className="text-zinc-500">{label}</dt>
                     <dd className="font-medium">{value}</dd>
                   </div>
                 ))}
               </dl>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <section id="reviews" className="container-page mt-20 scroll-mt-40">
-        <SectionHeader
-          eyebrow="Đánh giá"
-          title="Khách hàng nói gì"
-          description={`${formatCompact(product.review_count)} đánh giá · ${product.rating.toFixed(1)}/5 điểm trung bình`}
-        />
-        <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-          <div className="space-y-4">
-            {product.reviews.length === 0 && (
-              <EmptyState icon={Star} title="Chưa có đánh giá" description="Hãy là người đầu tiên chia sẻ cảm nhận về sản phẩm này." />
-            )}
-            {product.reviews.map((review) => (
-              <article key={review.id} className="card p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{review.author_name}</p>
-                    <p className="text-xs text-zinc-500">{formatDate(review.created_at, true)}</p>
-                  </div>
-                  <Rating value={review.rating} />
+            <section id="reviews" className="mt-12">
+              <SectionHeader eyebrow="Đánh giá" title="Khách hàng nói gì" />
+              <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_360px]">
+                <div className="space-y-4">
+                  {(product.reviews ?? []).length === 0 ? (
+                    <div className="card p-6 text-sm text-zinc-500">Chưa có đánh giá nào cho sản phẩm này.</div>
+                  ) : (
+                    product.reviews.map((review) => (
+                      <article key={review.id} className="card p-5">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="grid size-9 place-items-center rounded-full bg-zinc-100 text-sm font-bold">
+                            {review.author_name?.trim()?.[0]?.toUpperCase() ?? '?'}
+                          </span>
+                          <div>
+                            <p className="text-sm font-semibold">{review.author_name}</p>
+                            <p className="text-xs text-zinc-500">{formatDate(review.created_at, true)}</p>
+                          </div>
+                          <div className="ml-auto">
+                            <Rating value={review.rating} />
+                          </div>
+                        </div>
+                        <p className="mt-3 text-sm text-zinc-600">{review.comment}</p>
+                      </article>
+                    ))
+                  )}
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-zinc-600">{review.comment}</p>
-              </article>
-            ))}
+                {user ? (
+                  <ReviewForm slug={product.slug} onSubmitted={reload} />
+                ) : (
+                  <div className="card h-fit p-6">
+                    <h3 className="font-bold">Bạn đã mua sản phẩm này?</h3>
+                    <p className="mt-2 text-sm text-zinc-500">Đăng nhập để chia sẻ đánh giá của bạn.</p>
+                    <Link to={`/login?redirect=/products/${product.slug}`} className="btn btn-primary mt-4">Đăng nhập</Link>
+                  </div>
+                )}
+              </div>
+            </section>
           </div>
-          {user ? (
-            <ReviewForm slug={product.slug} onSubmitted={reload} />
-          ) : (
-            <div className="card h-fit p-6">
-              <h3 className="font-bold">Viết đánh giá của bạn</h3>
-              <p className="mt-2 text-sm text-zinc-600">
-                Bạn cần{' '}
-                <Link to={`/login?redirect=/products/${product.slug}`} className="font-semibold text-zinc-950 underline underline-offset-4">
-                  đăng nhập
-                </Link>{' '}
-                để gửi đánh giá cho sản phẩm này.
-              </p>
-            </div>
-          )}
         </div>
-      </section>
 
-      {product.related.length > 0 && (
-        <section className="container-page mt-20">
-          <SectionHeader
-            eyebrow="Có thể bạn thích"
-            title="Sản phẩm tương tự"
-            action={
-              <Link to={`/products?category=${product.category.slug}`} className="btn btn-ghost">
-                Xem thêm
-              </Link>
-            }
-          />
-          <ProductGrid items={product.related} />
-        </section>
-      )}
+        {product.related?.length > 0 && (
+          <section className="mt-20">
+            <SectionHeader
+              eyebrow="Gợi ý"
+              title="Sản phẩm tương tự"
+              action={<Link to={`/products?category=${product.category.slug}`} className="btn btn-ghost">Xem tất cả</Link>}
+            />
+            <ProductGrid items={product.related} />
+          </section>
+        )}
+      </div>
     </div>
   );
 }
