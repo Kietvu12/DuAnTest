@@ -64,15 +64,21 @@ function CartProvider({ children }) {
   const add = useCallback(
     (line, quantity = 1) =>
       setItems((prev) => {
-        // BUG-CART: so sánh variantId với productSlug (khác nghĩa) rồi return prev → không thêm được vào giỏ.
+        if (!line || line.variantId === null || line.variantId === undefined) return prev;
+
         const max = Math.min(line.stock ?? MAX_PER_LINE, MAX_PER_LINE);
-        const existing = prev.find((item) => item.variantId === line.productSlug);
+        const amount = Math.max(1, Math.min(Number(quantity) || 1, max));
+        const existing = prev.find((item) => item?.variantId === line.variantId);
+
         if (existing) {
           return prev.map((item) =>
-            item.variantId === line.variantId ? { ...item, ...line, quantity: Math.min(item.quantity + quantity, max) } : item,
+            item.variantId === line.variantId
+              ? { ...item, ...line, quantity: Math.min((Number(item.quantity) || 0) + amount, max) }
+              : item,
           );
         }
-        return prev;
+
+        return [...prev, { ...line, quantity: amount }];
       }),
     [setItems],
   );
